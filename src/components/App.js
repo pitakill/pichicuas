@@ -1,6 +1,7 @@
 import React from 'react';
 import { provider } from '../firebase';
 import firebase from 'firebase/app';
+import { Router, navigate } from '@reach/router';
 
 import Dashboard from './Dashboard';
 import Welcome from './Welcome';
@@ -29,12 +30,12 @@ class App extends React.Component {
         avatar: user.photoURL,
         buttonMessage: 'Cerrar sesión',
         loggedIn: true
-      });
+      }, () => navigate('dashboard'));
 
       return;
     }
 
-    this.setState(initialState);
+    this.setState(initialState, () => navigate('/'));
   }
 
   signIn = () => {
@@ -56,13 +57,19 @@ class App extends React.Component {
 
   render() {
     return (
-      this.state.loggedIn
-        ? <Dashboard {...this.state} action={this.signOut} />
-        : <Welcome
-            actionButton={this.signIn}
-            actionDismiss={this.onDismiss}
-            errorMessage={this.state.errorMessage}
-          />
+      <Router>
+        <Dashboard
+          {...this.state}
+          action={this.signOut}
+          path='dashboard'
+        />
+        <Welcome
+          actionButton={this.signIn}
+          actionDismiss={this.onDismiss}
+          errorMessage={this.state.errorMessage}
+          path='/'
+        />
+      </Router>
     );
   }
 }
