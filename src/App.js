@@ -2,11 +2,14 @@ import React from 'react';
 import { provider } from './firebase';
 import firebase from 'firebase/app';
 
-import { Card, CardImg, CardBody, CardTitle, CardSubtitle, Button } from 'reactstrap';
+import {
+  Card, CardImg, CardBody, CardTitle, CardSubtitle, Button, Alert, Jumbotron
+} from 'reactstrap';
 
 const initialState = {
-  name: 'John Doe',
-  email: 'foo@bar.com',
+  name: '',
+  errorMessage: '',
+  email: '',
   avatar: '',
   buttonMessage: 'Sign in',
   loggedIn: false
@@ -39,7 +42,13 @@ class App extends React.Component {
     firebase
       .auth()
       .signInWithPopup(provider)
-      .catch(console.error)
+      .catch(error => {
+        this.setState({errorMessage: error.message});
+      })
+  }
+
+  onDismiss = () => {
+    this.setState({errorMessage: ''});
   }
 
   signOut = () => {
@@ -50,7 +59,7 @@ class App extends React.Component {
     const { avatar, email, name, buttonMessage } = this.state;
 
     return (
-      <Card style={{width: '200px'}}>
+      <Card style={{width: '350px'}}>
         <CardImg top width="100%" src={avatar} alt={name} />
         <CardBody>
           <CardTitle>{name}</CardTitle>
@@ -62,13 +71,35 @@ class App extends React.Component {
     )
   }
 
+  renderJumbotron = () => {
+    return (
+      <Jumbotron>
+        <h1 className="display-3 text-center">¡Bienvenido!</h1>
+        <p className="lead">Descubre el mundo de React en nuestra aplicación</p>
+        <hr />
+        <button className="btn btn-lg btn-block btn-social btn-google" onClick={this.signIn}>
+          <span className="fa fa-google" />
+          Acceder con Google
+        </button>
+      </Jumbotron>
+    );
+  }
+
   render() {
     return (
       <>
+        <Alert
+          color="danger"
+          isOpen={this.state.errorMessage !== ''}
+          toggle={this.onDismiss}
+        >
+          {this.state.errorMessage}
+        </Alert>
+
         {
           this.state.loggedIn
             ? this.renderCard()
-            : <Button onClick={this.signIn}>{this.state.buttonMessage}</Button>
+            : this.renderJumbotron()
         }
       </>
     );
