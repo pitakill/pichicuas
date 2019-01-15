@@ -1,8 +1,9 @@
-#Chart div {
+#Chart rect {
+  fill: steelblue;
+}
+
+#Chart text {
+  fill: white;
   font: 10px sans-serif;
-  background-color: steelblue;
-  text-align: right;
-  padding: 3px;
-  margin: 1px;
-  color: white;
+  text-anchor: end;
 }

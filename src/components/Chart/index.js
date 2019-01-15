@@ -23,7 +23,28 @@ class Chart extends React.Component {
 
   render() {
     return (
-      <div id="Chart" />
+      <svg id="Chart" width="500" height="120">
+        <g transform="translate(0,0)">
+          <rect width="100" height="19"></rect>
+          <text x="97" y="9.5" dy=".35em">100</text>
+        </g>
+        <g transform="translate(0,20)">
+          <rect width="200" height="19"></rect>
+          <text x="197" y="9.5" dy=".35em">200</text>
+        </g>
+        <g transform="translate(0,40)">
+          <rect width="300" height="19"></rect>
+          <text x="297" y="9.5" dy=".35em">300</text>
+        </g>
+        <g transform="translate(0,60)">
+          <rect width="400" height="19"></rect>
+          <text x="397" y="9.5" dy=".35em">400</text>
+        </g>
+        <g transform="translate(0,80)">
+          <rect width="500" height="19"></rect>
+          <text x="497" y="9.5" dy=".35em">500</text>
+        </g>
+      </svg>
     );
   }
 }
