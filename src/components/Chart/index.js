@@ -4,6 +4,12 @@ import * as d3 from 'd3';
 import './styles.css';
 
 class Chart extends React.Component {
+  state = {
+    data: [100,200,300,400,500],
+    width: 500,
+    height: 20,
+  }
+
   componentDidMount() {
     this.element = document.getElementById('Chart');
 
@@ -11,40 +17,44 @@ class Chart extends React.Component {
   }
 
   drawChart = () => {
-    d3
+    const {data, height, width} = this.state;
+
+    const x = d3.scaleLinear()
+      .domain([0, d3.max(data)])
+      .range([0, width]);
+
+    // Create "space" for chart
+    const chart = d3
       .select(this.element)
-      .selectAll('div')
-      .data([100,200,300,400,500])
-        .enter()
-        .append('div')
-        .style('width', d => `${d}px`)
-        .text(d => d);
+      .attr('width', width)
+      .attr('height', height * data.length);
+
+    // Create bars
+    const bar = chart
+      .selectAll('g')
+      .data(data)
+      .enter()
+      .append('g')
+      .attr('transform', (d, i) => `translate(0, ${i * height})`);
+
+    // Create rect
+    bar
+      .append('rect')
+      .attr('width', x)
+      .attr('height', height - 1);
+
+    // Create text
+    bar
+      .append('text')
+      .attr('x', (d) => x(d) - 3)
+      .attr('y', height / 2)
+      .attr('dy', '.35em')
+      .text((d) => d);
   }
 
   render() {
     return (
-      <svg id="Chart" width="500" height="120">
-        <g transform="translate(0,0)">
-          <rect width="100" height="19"></rect>
-          <text x="97" y="9.5" dy=".35em">100</text>
-        </g>
-        <g transform="translate(0,20)">
-          <rect width="200" height="19"></rect>
-          <text x="197" y="9.5" dy=".35em">200</text>
-        </g>
-        <g transform="translate(0,40)">
-          <rect width="300" height="19"></rect>
-          <text x="297" y="9.5" dy=".35em">300</text>
-        </g>
-        <g transform="translate(0,60)">
-          <rect width="400" height="19"></rect>
-          <text x="397" y="9.5" dy=".35em">400</text>
-        </g>
-        <g transform="translate(0,80)">
-          <rect width="500" height="19"></rect>
-          <text x="497" y="9.5" dy=".35em">500</text>
-        </g>
-      </svg>
+      <svg id="Chart" />
     );
   }
 }
