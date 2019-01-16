@@ -4,6 +4,12 @@
 
 #Chart text {
   fill: white;
-  font: 10px sans-serif;
+  font-size: 10px;
   text-anchor: end;
+}
+
+.Chart-wrapper {
+  background-color: rgba(255,255,255, 0.25);
+  border-radius: 3px;
+  padding: 1em calc(1em - 1px) 1em 1em;
 }

@@ -7,27 +7,32 @@ class Chart extends React.Component {
   state = {
     data: [100,200,300,400,500],
     width: 500,
-    height: 20,
+    height: 500,
   }
 
   componentDidMount() {
     this.element = document.getElementById('Chart');
 
-    this.drawChart();
+    // We don't have a back end service. So we can emulate the draw with a delay
+    // With this approach the chart is not showed
+    setTimeout(() => this.drawChart(), 350);
   }
 
   drawChart = () => {
     const {data, height, width} = this.state;
 
-    const x = d3.scaleLinear()
+    const y = d3
+      .scaleLinear()
       .domain([0, d3.max(data)])
-      .range([0, width]);
+      .range([height, 0]);
+
+    const barWidth = width / data.length;
 
     // Create "space" for chart
     const chart = d3
       .select(this.element)
       .attr('width', width)
-      .attr('height', height * data.length);
+      .attr('height', height);
 
     // Create bars
     const bar = chart
@@ -35,26 +40,29 @@ class Chart extends React.Component {
       .data(data)
       .enter()
       .append('g')
-      .attr('transform', (d, i) => `translate(0, ${i * height})`);
+      .attr('transform', (d, i) => `translate(${i * barWidth}, 0)`);
 
     // Create rect
     bar
       .append('rect')
-      .attr('width', x)
-      .attr('height', height - 1);
+      .attr('y', (d) => y(d))
+      .attr('width', barWidth - 1 )
+      .attr('height', (d) => height - y(d));
 
     // Create text
     bar
       .append('text')
-      .attr('x', (d) => x(d) - 3)
-      .attr('y', height / 2)
-      .attr('dy', '.35em')
+      .attr('x', (barWidth / 2) + 9)
+      .attr('y', (d) => y(d) + 3)
+      .attr('dy', '.75em')
       .text((d) => d);
   }
 
   render() {
     return (
-      <svg id="Chart" />
+      <div className="Chart-wrapper">
+        <svg id="Chart" />
+      </div>
     );
   }
 }
