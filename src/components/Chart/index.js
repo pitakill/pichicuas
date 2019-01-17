@@ -3,19 +3,57 @@ import * as d3 from 'd3';
 
 import './styles.css';
 
+import {dataURL} from '../../constants';
+import HTTPService from '../../http';
+
 class Chart extends React.Component {
   state = {
-    data: [100,200,300,400,500],
+    data: [],
     width: 500,
     height: 500,
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.element = document.getElementById('Chart');
 
-    // We don't have a back end service. So we can emulate the draw with a delay
-    // With this approach the chart is not showed
-    setTimeout(() => this.drawChart(), 350);
+    await this.getData();
+    await this.drawChart();
+  }
+
+  transform = (data) => {
+    // We want the fourth element of the columns
+    const key = data.columns[3];
+    const stations = [];
+    const stationsSeen = {};
+
+    data.forEach(e => {
+      const name = e[key].split(' · ').pop();
+
+      if (!stationsSeen[name]) {
+        stationsSeen[name] = 1;
+        return
+      }
+
+      stationsSeen[name]++;
+    });
+
+    for (let name in stationsSeen) {
+      if (stationsSeen[name] >= 4) {
+        stations.push({
+          name,
+          numberOfStations: stationsSeen[name],
+        });
+      }
+    }
+
+    this.setState({data: stations});
+  }
+
+  getData = () => {
+    return HTTPService
+      .get(dataURL)
+      .then(this.transform)
+      .then()
   }
 
   drawChart = () => {
@@ -23,7 +61,7 @@ class Chart extends React.Component {
 
     const y = d3
       .scaleLinear()
-      .domain([0, d3.max(data)])
+      .domain([0, d3.max(data, (d) => d.numberOfStations)])
       .range([height, 0]);
 
     const barWidth = width / data.length;
@@ -40,22 +78,23 @@ class Chart extends React.Component {
       .data(data)
       .enter()
       .append('g')
-      .attr('transform', (d, i) => `translate(${i * barWidth}, 0)`);
+      .attr('transform', (d, i) => `translate(${i * barWidth}, 0)`)
+      .on('mouseover', (d, i, e) => d3.select(e[i]).raise())
 
     // Create rect
     bar
       .append('rect')
-      .attr('y', (d) => y(d))
+      .attr('y', (d) => y(d.numberOfStations))
       .attr('width', barWidth - 1 )
-      .attr('height', (d) => height - y(d));
+      .attr('height', (d) => height - y(d.numberOfStations));
 
     // Create text
     bar
       .append('text')
-      .attr('x', (barWidth / 2) + 9)
-      .attr('y', (d) => y(d) + 3)
+      .attr('y', (d) => y(d.numberOfStations) + 3)
       .attr('dy', '.75em')
-      .text((d) => d);
+      .text((d) => d.name)
+      .attr('x', (d, i, e) => (barWidth / 2) + (e[i].getBBox().width / 2))
   }
 
   render() {

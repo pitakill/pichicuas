@@ -2,10 +2,19 @@
   fill: steelblue;
 }
 
+#Chart g:hover rect {
+  fill: rgba(70, 130, 180, .75);
+}
+
+#Chart g:hover text {
+  visibility: visible;
+}
+
 #Chart text {
   fill: white;
   font-size: 10px;
   text-anchor: end;
+  visibility: hidden;
 }
 
 .Chart-wrapper {
