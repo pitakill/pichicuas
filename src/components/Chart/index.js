@@ -1,10 +1,9 @@
 import React from 'react';
 import * as d3 from 'd3';
+import firebase from 'firebase/app';
+import 'firebase/database';
 
 import './styles.css';
-
-import {dataURL} from '../../constants';
-import HTTPService from '../../http';
 
 class Chart extends React.Component {
   state = {
@@ -13,11 +12,31 @@ class Chart extends React.Component {
     height: 500,
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this.element = document.getElementById('Chart');
 
-    await this.getData();
-    await this.drawChart();
+    this.getDataFromFirebase();
+  }
+
+  getDataFromFirebase = () => {
+    firebase
+    .database()
+    .ref('items/')
+    .on('value', snapshot => {
+      console.log(snapshot)
+      let items = snapshot.val();
+      let newState = [];
+      for (let item in items) {
+        newState.push({
+          id: item,
+          name: items[item].name,
+          numberOfStations: items[item].numberOfStations
+        })
+      }
+      this.setState({
+        data: newState
+      }, () => this.drawChart(newState))
+    })
   }
 
   transform = (data) => {
@@ -49,15 +68,8 @@ class Chart extends React.Component {
     this.setState({data: stations});
   }
 
-  getData = () => {
-    return HTTPService
-      .get(dataURL)
-      .then(this.transform)
-      .then()
-  }
-
-  drawChart = () => {
-    const {data, height, width} = this.state;
+  drawChart = (data) => {
+    const {height, width} = this.state;
 
     const y = d3
       .scaleLinear()
@@ -71,6 +83,11 @@ class Chart extends React.Component {
       .select(this.element)
       .attr('width', width)
       .attr('height', height);
+
+    // Clean svg
+    chart
+      .selectAll('g')
+      .remove()
 
     // Create bars
     const bar = chart
