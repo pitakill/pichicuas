@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Card as CardReactstrap, CardImg, CardBody, CardTitle, CardSubtitle, Button
 } from 'reactstrap';
+import { UserContext } from './Context';
 
 const styles = {
   position: 'absolute',
@@ -12,15 +13,21 @@ const styles = {
 
 const Card = ({ action, avatar, email, name, buttonMessage }) => {
   return (
-    <CardReactstrap style={styles}>
-      <CardImg top width="100%" src={avatar} alt={name} />
-      <CardBody>
-        <CardTitle>{name}</CardTitle>
-        <CardSubtitle>{email}</CardSubtitle>
-        <br />
-        <Button onClick={action}>{buttonMessage}</Button>
-      </CardBody>
-    </CardReactstrap>
+    <UserContext.Consumer>
+      {
+        value => (
+          <CardReactstrap style={styles}>
+            <CardImg top width="100%" src={value.state.avatar} alt={name} />
+            <CardBody>
+              <CardTitle>{value.state.name}</CardTitle>
+              <CardSubtitle>{value.state.email}</CardSubtitle>
+              <br />
+              <Button onClick={value.signOut}>{value.state.buttonMessage}</Button>
+            </CardBody>
+          </CardReactstrap>
+        )
+      }
+    </UserContext.Consumer>
   );
 }
 

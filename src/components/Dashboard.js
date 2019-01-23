@@ -14,7 +14,7 @@ const Dashboard = (props) => {
           <Chart />
         </Col>
       </Row>
-      <Card {...props} />
+      <Card />
     </Container>
   )
 }
